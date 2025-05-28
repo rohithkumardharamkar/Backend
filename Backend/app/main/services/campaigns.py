@@ -20,7 +20,7 @@ from datetime import datetime
 #Add the Campaigns
 def add_campaigns(data):
     try:
-        name,location,description,category,ngo_id,urgency,target_amount,date=data.get('campaign_name'),data.get('campaign_location'),data.get('campaign_description'),data.get('campaign_category'),data.get('ngo_id'),data.get('urgent'),data.get("target_amount"),data.get('campaign_date')
+        name,location,description,category,ngo_id,urgency,target_amount,date=data.get('campaign_name'),data.get('campaign_location'),data.get('campaign_description'),data.get('campaign_category'),data.get('ngo_id'),data.get('urgent'),data.get("target_amount"),data.get('c_date')
         print(name)
         c_data=Campaigns.query.filter_by(campaign_name=name).first()
         if c_data:
@@ -102,7 +102,8 @@ def get_campaigns(campaign_id,campaign_name,ngo_id):
                 p=Payments.query.filter_by(campaign_id=el.campaign_id).all()
                 total_amount = db.session.query(func.sum(Payments.payment_amount)).filter_by(campaign_id=el.campaign_id).scalar()
                 # likes=db.session.query(func.sum(Campaigns.li))
-                r.append({"campaign_id":str(el.campaign_id),"campain_name":el.campaign_name,"campaign_location":el.campaign_location,"category":el.campaign_category,"amount":el.target_amount, "ngo":{"name":ngo_data.ngo_name,"ngo_status":str(ngo_data.ngo_status),"location":ngo_data.ngo_location,"isVerified":ngo_data.is_verified,"ngo_blacklist":ngo_data.ngo_blacklisted},"raise_amount":total_amount,"likes":total_likes})
+                print('11111',ngo_data.ngo_id)
+                r.append({"campaign_id":str(el.campaign_id),"campain_name":el.campaign_name,"campaign_location":el.campaign_location,"category":el.campaign_category,"amount":el.target_amount, "ngo":{"name":ngo_data.ngo_name,"ngo_status":str(ngo_data.ngo_status),"location":ngo_data.ngo_location,"isVerified":ngo_data.is_verified,'ngo_id':str(ngo_data.ngo_id),"ngo_blacklist":ngo_data.ngo_blacklisted},"raise_amount":total_amount,"likes":total_likes})
            
             return {'r':r},200
         else:
@@ -117,9 +118,11 @@ def get_campaigns(campaign_id,campaign_name,ngo_id):
                 n_data={"ngo_name":ngo_data.ngo_name,"ngo_id":ngo_data.ngo_id}
                 total_likes = db.session.query(func.sum(cast(Likes.is_liked, Integer))).filter_by(campaign_id=el.campaign_id).scalar() or 0
                 p=Payments.query.filter_by(campaign_id=el.campaign_id).all()
+                print(p)
                 total_amount = db.session.query(func.sum(Payments.payment_amount)).filter_by(campaign_id=el.campaign_id).scalar()
                 # likes=db.session.query(func.sum(Campaigns.li))
-                r.append({"campaign_id":str(el.campaign_id),"campain_name":el.campaign_name,"campaign_location":el.campaign_location,"category":el.campaign_category,"amount":el.target_amount, "ngo":{"name":ngo_data.ngo_name,"ngo_status":str(ngo_data.ngo_status),"location":ngo_data.ngo_location,"isVerified":ngo_data.is_verified,"ngo_blacklist":ngo_data.ngo_blacklisted},"raise_amount":total_amount,"likes":total_likes})
+                d=datetime.now()
+                r.append({"campaign_id":str(el.campaign_id),"campain_name":el.campaign_name,"campaign_location":el.campaign_location,"category":el.campaign_category,"amount":el.target_amount, "ngo":{"name":ngo_data.ngo_name,"ngo_status":str(ngo_data.ngo_status),"location":ngo_data.ngo_location,"isVerified":ngo_data.is_verified,"ngo_blacklist":ngo_data.ngo_blacklisted,'ngo_id':str(ngo_data.ngo_id)},"raise_amount":total_amount,"likes":total_likes,"people":str(len(p)),"status":'status'})
            
             return {'r':r},200
 

@@ -7,6 +7,7 @@ from app.main.models.campaigns import Campaigns
 from utils.initdb import db
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime,timedelta
+from app.main.models.ngo import NGO
 
 #Add Payments
 def add_to_payment(data):
@@ -67,7 +68,7 @@ def get_payments_by_campaign_id():
         data=db.session.query(Payments.user_id,Payments.campaign_id,func.count(Payments.campaign_id,Payments.campaign_id)).group_by(Payments.user_id).all()
         if not data:
             return jsonify({"message":"No Details Found"}),404
-        return jsonify({"message":data}),200
+        return jsonify({"message":"data"}),200
     except SQLAlchemyError as e:
         print(e)
         db.session.rollback()
@@ -101,5 +102,57 @@ def get_payments_by_last_n_days(limit,campaign_id):
         print(e)
         return jsonify({"message":"Internal Server Error"}),500
     
+
+
+
+#get payments by campaign_id
+def get_by_campaign_id(campaign_id):
+    try:
+        print(campaign_id)
+        p_data=Payments.query.filter_by(campaign_id=campaign_id).all()
+        result=[]
+        for el in p_data:
+            user_data=Users.query.filter_by(user_id=el.user_id).first()
+            result.append({'payment':{'id':str(el.payment_id),'amount':el.payment_amount,'type':el.payment_type},'users':{'name':user_data.user_name,'email':user_data.user_email,'gender':user_data.user_gender,'mobile':user_data.user_mobile}})
+        return {"data":result}
+
+
+
+    except SQLAlchemyError as e:
+        print(e)
+        return {"message":"Internal Server Error"},500
+    except Exception as e:
+        print(e)
+        return {"message":"Internal Server Error"},500
+
+
+
+
+
+    
+def get_by_user_id(user_id):
+    try:
+        print('d1',user_id)
+        user_payments=Payments.query.filter_by(user_id=user_id).all()
+        result=[]
+        for el in user_payments:
+            cam_data=Campaigns.query.filter_by(campaign_id=el.campaign_id).first()
+            ngo_data=NGO.query.filter_by(ngo_id=cam_data.ngo_id).first()
+            c_d={'id':str(cam_data.campaign_id),'name':cam_data.campaign_name,'location':cam_data.campaign_location,'category':cam_data.campaign_category}
+            print('nd',cam_data.ngo_id)
+            n_d={'id':str(ngo_data.ngo_id),'name':ngo_data.ngo_name,'location':ngo_data.ngo_location}
+            p_d={'id':str(el.payment_id),'mode':el.payment_type,'amount':el.payment_amount}
+            result.append({'ngo':n_d,'campaign':c_d,'payments':p_d})
+        return {"data":result},200
+    except SQLAlchemyError as e:
+        print(e)
+        return {"messgae":"Internal Server Error"},500
+    except Exception as e:
+        print(e)
+        return {"message":"Internal Server Error"},500
+
+
+
+
 
 

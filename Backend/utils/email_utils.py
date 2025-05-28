@@ -1,9 +1,7 @@
-# utils/email_utils.py
 
 from flask_mail import Message,Mail
 from flask import current_app
 from utils.extension import mail
-# from app import mail  # This imports the `mail` object from app/__init__.py
 
 def send_email(subject, recipients, body):
     try:
